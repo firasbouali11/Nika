@@ -1,0 +1,6 @@
+*.o
+main
+ape.nika
+test.nika
+test.c
+.vscode
