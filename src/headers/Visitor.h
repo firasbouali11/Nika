@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Parser.h"
-#include "../../lib/headers/Map.h"
+#include "stdc.h"
 
 typedef struct
 {
@@ -9,5 +9,4 @@ typedef struct
     int type;
 } Value;
 
-
-Value *execute(ASTNode *node, Map* cache);
+Value *execute(ASTNode *node, Map *cache, Map *functions);

@@ -21,19 +21,16 @@ char *readFile(const char *filename)
 {
     checkNikaFile(filename);
     FILE *file;
-    char c;
-
     file = fopen(filename, "r");
-
-    char *code = malloc(sizeof(char));
-    code[0] = '\0';
-    int size = 0;
     if (file == NULL)
     {
         fprintf(stderr, "File could not be opened.");
         exit(EXIT_FAILURE);
     }
-
+    char c;
+    char *code = malloc(sizeof(char));
+    code[0] = '\0';
+    int size = 0;
     while ((c = fgetc(file)) != EOF)
     {
         code = realloc(code, (size + 2) * sizeof(char));

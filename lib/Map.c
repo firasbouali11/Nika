@@ -33,10 +33,6 @@ Pair *newPair(void *key, void *value)
     Pair *node = malloc(sizeof(Pair));
     node->first = key;
     node->second = value;
-    // node->first = malloc(key_size);
-    // node->second = malloc(value_size);
-    // memcpy(node->first, key, key_size);
-    // memcpy(node->second, value, value_size);
     node->next = NULL;
     return node;
 }
@@ -88,7 +84,6 @@ void addToMap(Map *map, void *key, void *value, int key_size)
         }
         existing_node = existing_node->next;
     }
-    
 }
 
 void *getFromMap(Map *map, void *key, int size)

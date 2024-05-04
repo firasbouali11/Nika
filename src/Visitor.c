@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "headers/stdc.h"
+#include "headers/Parser.h"
 #include "headers/Visitor.h"
-#include "../lib/headers/Boolean.h"
 
 static Value *initValue(void *data, int type)
 {
@@ -36,7 +37,7 @@ static double getConextForBinaryOp(Map *cache, Value *l)
     return context;
 }
 
-Value *execute(ASTNode *node, Map *cache)
+Value *execute(ASTNode *node, Map *cache, Map *functions)
 {
     if (node == NULL)
         return NULL;
@@ -66,13 +67,42 @@ Value *execute(ASTNode *node, Map *cache)
     {
         return initValue(node->token->value, node->token->type);
     }
+    else if (node->token->type == TOKEN_OSB)
+    {
+        List *l = newList();
+        for (int i = 0; i < node->body->size; i++)
+        {
+            ASTNode *elt = (ASTNode *)getFromList(node->body, i);
+            Value *val = execute(elt, cache, functions);
+            addToList(l, val, sizeof(Value));
+        }
+        return initValue(l, TOKEN_OSB);
+    }
+    else if (node->token->type == TOKEN_FUNCTION)
+    {
+        ASTNode *function_ast = (ASTNode *)getFromMap(functions, node->token->value, strlen(node->token->value) + 1);
+        for (int i = 0; i < node->args->size; i++)
+        {
+            ASTNode *arg = (ASTNode *)getFromList(node->args, i);
+            Value *val = execute(arg, cache, functions);
+            char *var_name = ((ASTNode *)getFromList(function_ast->args, i))->token->value;
+            addToMap(cache, var_name, val, sizeof(strlen(var_name) + 1));
+        }
+        Value *val = NULL;
+        for (int i = 0; i < function_ast->body->size; i++)
+        {
+            ASTNode *node = (ASTNode *)getFromList(function_ast->body, i);
+            val = execute(node, cache, functions);
+        }
+        return val;
+    }
 
     Value *l = NULL, *r = NULL;
-    Value *cond = execute(node->condition, cache);
+    Value *cond = execute(node->condition, cache, functions);
     if (!cond)
     {
-        l = execute(node->left, cache);
-        r = execute(node->right, cache);
+        l = execute(node->left, cache, functions);
+        r = execute(node->right, cache, functions);
     }
     else
     {
@@ -80,21 +110,55 @@ Value *execute(ASTNode *node, Map *cache)
         {
             if (*(double *)(cond->data) == 1)
                 for (int i = 0; i < node->left->body->size; i++)
-                {
-                    execute(node->left->body->array[i], cache);
-                }
-            
+                    execute(node->left->body->array[i], cache, functions);
             else
                 for (int i = 0; i < node->right->body->size; i++)
+                    execute(node->right->body->array[i], cache, functions);
+        }
+        else if (node->token->type == TOKEN_FOR)
+        {
+            if (cond->type == TOKEN_INT)
+            {
+                int *data = (int *)cond->data;
+                int start = data[0];
+                int end = data[1];
+                for (int i = start; i < end; i++)
                 {
-                    execute(node->right->body->array[i], cache);
+                    double *_i = malloc(sizeof(double));
+                    *_i = (double)i;
+                    char *var_name = node->condition->left->token->value;
+                    int key_size = (strlen(var_name) + 1) * sizeof(char);
+                    Value *val = initValue(_i, TOKEN_FLOAT);
+                    addToMap(cache, var_name, val, key_size);
+                    for (int j = 0; j < node->left->body->size; j++)
+                        execute(getFromList(node->left->body, j), cache, functions);
+                    deleteFromMap(cache, var_name, key_size);
+                    free(_i);
+                    free(val);
                 }
+            }
+            else if (cond->type == TOKEN_VAR)
+            {
+                char *list_var = (char *)cond->data;
+                char *var_name = node->condition->left->token->value;
+                Value *val = (Value *)getFromMap(cache, list_var, (strlen(list_var) + 1) * sizeof(char));
+                List *l = val->data;
+                for (int i = 0; i < l->size; i++)
+                {
+                    Value *a = (Value *)getFromList(l, i);
+                    int key_size = (strlen(var_name) + 1) * sizeof(char);
+                    addToMap(cache, var_name, a, key_size);
+                    for (int j = 0; j < node->left->body->size; j++)
+                        execute(getFromList(node->left->body, j), cache, functions);
+                    deleteFromMap(cache, var_name, key_size);
+                }
+            }
         }
         return NULL;
     }
 
     if (node->token->type == TOKEN_ELSE)
-        return execute(node->right, cache);
+        return execute(node->right, cache, functions);
 
     if (node->token->type == TOKEN_EQUAL)
     {
@@ -102,13 +166,28 @@ Value *execute(ASTNode *node, Map *cache)
         addToMap(cache, var_name, r, (strlen(var_name) + 1) * sizeof(char));
         return r;
     }
+    if (node->token->type == TOKEN_COLON)
+    {
+        return r;
+    }
 
-    Value *val = initValue(NULL, TOKEN_FLOAT);
-    double *res = malloc(sizeof(double));
+    // this part contains the binary operators;
     double left_val = getConextForBinaryOp(cache, l);
     double right_val = getConextForBinaryOp(cache, r);
 
-    // run the operation
+    if (node->token->type == TOKEN_TO)
+    {
+        int start = left_val;
+        int end = right_val;
+        int *l = malloc(2 * sizeof(int));
+        l[0] = start;
+        l[1] = end;
+        return initValue(l, TOKEN_INT);
+    }
+
+    Value *val = initValue(NULL, TOKEN_FLOAT);
+    double *res = malloc(sizeof(double));
+
     if (node->token->type == TOKEN_PLUS)
         *res = left_val + right_val;
     else if (node->token->type == TOKEN_MINUS)
@@ -131,6 +210,7 @@ Value *execute(ASTNode *node, Map *cache)
         *res = left_val && right_val;
     else if (node->token->type == TOKEN_OR)
         *res = left_val || right_val;
+
     val->data = res;
     return val;
 }

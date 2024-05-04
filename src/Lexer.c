@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "../lib/headers/List.h"
-#include "../lib/headers/Set.h"
-#include "../lib/headers/Boolean.h"
+
 #include "headers/Lexer.h"
 
 Lexer *initLexer(char *content, Set *keywords)
@@ -72,6 +70,8 @@ Token *createIdentifier(Lexer *lexer)
         token->type = TOKEN_TYPE_STRING;
     else if (strcmp(str, "list") == 0)
         token->type = TOKEN_TYPE_LIST;
+    else if ((strcmp(str, "fn") == 0))
+        token->type = TOKEN_TYPE_FUNCTION;
     else if (point)
         token->type = TOKEN_FLOAT;
     else if (only_digit)
@@ -90,6 +90,8 @@ Token *createIdentifier(Lexer *lexer)
         token->type = TOKEN_ELSE;
     else if ((strcmp(str, "while") == 0))
         token->type = TOKEN_WHILE;
+    else if ((strcmp(str, "for") == 0))
+        token->type = TOKEN_FOR;
     else
         token->type = TOKEN_VAR;
     token->value = str;
@@ -112,6 +114,13 @@ char *convertCharToString(char c)
     return string;
 }
 
+char *createString(char *s, int size)
+{
+    char *string = malloc((size + 1) * sizeof(char));
+    strcpy(string, s);
+    return string;
+}
+
 List *createTokens(Lexer *lexer)
 {
     int n = strlen(lexer->content);
@@ -131,10 +140,9 @@ List *createTokens(Lexer *lexer)
             {
                 addToList(tokens_list, tokens, sizeof(List));
                 tokens = newList();
-                // advanceLexer(lexer);
             }
             else
-                addToList(tokens, initToken(TOKEN_COMMA, ";"), sizeof(Token));
+                addToList(tokens, initToken(TOKEN_SEMICOLON, convertCharToString(';')), sizeof(Token));
         }
         else if (lexer->c == '"')
         {
@@ -147,74 +155,96 @@ List *createTokens(Lexer *lexer)
             addToList(tokens, t, sizeof(Token));
             continue;
         }
+
         switch (lexer->c)
         {
         case '=':
             advanceLexer(lexer);
             if (lexer->c == '=')
             {
-                addToList(tokens, initToken(TOKEN_EE, "=="), sizeof(Token));
+                addToList(tokens, initToken(TOKEN_EE, createString("==", 2)), sizeof(Token));
                 break;
             }
             else
             {
-                addToList(tokens, initToken(TOKEN_EQUAL, "="), sizeof(Token));
+                addToList(tokens, initToken(TOKEN_EQUAL, convertCharToString('=')), sizeof(Token));
                 continue;
             }
         case '+':
-            addToList(tokens, initToken(TOKEN_PLUS, "+"), sizeof(Token));
+            addToList(tokens, initToken(TOKEN_PLUS, convertCharToString('+')), sizeof(Token));
             break;
         case '-':
-            addToList(tokens, initToken(TOKEN_MINUS, "-"), sizeof(Token));
-            break;
+            advanceLexer(lexer);
+            if (lexer->c == '>')
+            {
+                addToList(tokens, initToken(TOKEN_TO, createString("->", 2)), sizeof(Token));
+                break;
+            }
+            else
+            {
+                addToList(tokens, initToken(TOKEN_MINUS, convertCharToString('-')), sizeof(Token));
+                continue;
+            }
         case '*':
-            addToList(tokens, initToken(TOKEN_MUL, "*"), sizeof(Token));
+            addToList(tokens, initToken(TOKEN_MUL, convertCharToString('*')), sizeof(Token));
             break;
         case '/':
-            addToList(tokens, initToken(TOKEN_DIV, "/"), sizeof(Token));
+            addToList(tokens, initToken(TOKEN_DIV, convertCharToString('/')), sizeof(Token));
+            break;
+        case ':':
+            addToList(tokens, initToken(TOKEN_COLON, convertCharToString(':')), sizeof(Token));
             break;
         case '(':
-            addToList(tokens, initToken(TOKEN_LP, "("), sizeof(Token));
+            addToList(tokens, initToken(TOKEN_LP, convertCharToString('(')), sizeof(Token));
             break;
         case ')':
-            addToList(tokens, initToken(TOKEN_RP, ")"), sizeof(Token));
+            addToList(tokens, initToken(TOKEN_RP, convertCharToString(')')), sizeof(Token));
+            break;
+        case '[':
+            addToList(tokens, initToken(TOKEN_OSB, convertCharToString('[')), sizeof(Token));
+            break;
+        case ']':
+            addToList(tokens, initToken(TOKEN_CSB, convertCharToString(']')), sizeof(Token));
+            break;
+        case ',':
+            addToList(tokens, initToken(TOKEN_COMMA, convertCharToString(',')), sizeof(Token));
             break;
         case '{':
-            addToList(tokens, initToken(TOKEN_OB, "{"), sizeof(Token));
+            addToList(tokens, initToken(TOKEN_OB, convertCharToString('{')), sizeof(Token));
             lower_level++;
             break;
         case '}':
-            addToList(tokens, initToken(TOKEN_CB, "}"), sizeof(Token));
+            addToList(tokens, initToken(TOKEN_CB, convertCharToString('}')), sizeof(Token));
             lower_level--;
             break;
         case '>':
             advanceLexer(lexer);
             if (lexer->c == '=')
             {
-                addToList(tokens, initToken(TOKEN_GTE, ">="), sizeof(Token));
+                addToList(tokens, initToken(TOKEN_GTE, createString(">=", 2)), sizeof(Token));
                 break;
             }
             else
             {
-                addToList(tokens, initToken(TOKEN_GT, ">"), sizeof(Token));
+                addToList(tokens, initToken(TOKEN_GT, convertCharToString('>')), sizeof(Token));
                 continue;
             }
         case '<':
             advanceLexer(lexer);
             if (lexer->c == '=')
             {
-                addToList(tokens, initToken(TOKEN_LTE, "<="), sizeof(Token));
+                addToList(tokens, initToken(TOKEN_LTE, createString("<=", 2)), sizeof(Token));
                 break;
             }
             else
             {
-                addToList(tokens, initToken(TOKEN_LT, "<"), sizeof(Token));
+                addToList(tokens, initToken(TOKEN_LT, convertCharToString('<')), sizeof(Token));
                 continue;
             }
         case '!':
             advanceLexer(lexer);
             if (lexer->c == '=')
-                addToList(tokens, initToken(TOKEN_NE, "!="), sizeof(Token));
+                addToList(tokens, initToken(TOKEN_NE, createString("!=", 2)), sizeof(Token));
             break;
         }
         advanceLexer(lexer);

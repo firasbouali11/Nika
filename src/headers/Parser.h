@@ -1,14 +1,19 @@
 #pragma once
 
 #include "Lexer.h"
-#include "../../lib/headers/List.h"
+#include "stdc.h"
 
 typedef struct ASTNode
 {
+    // if conditions and loops
+    struct ASTNode *condition;
+    // functions
+    List* args;
+    char* name;
+    // general purposes
     Token* token;
     struct ASTNode *left;
     struct ASTNode *right;
-    struct ASTNode *condition;
     List* body;
 } ASTNode;
 

@@ -1,14 +1,13 @@
 #pragma once
 
-#include "../../lib/headers/List.h"
-#include "../../lib/headers/Set.h"
+#include "stdc.h"
 
 typedef struct Lexer
 {
     char c;
     unsigned int i;
     char *content;
-    Set* keywords;
+    Set *keywords;
 } Lexer;
 
 typedef struct Token
@@ -25,35 +24,42 @@ typedef struct Token
         TOKEN_FUNCTION,
         TOKEN_VAR,
         TOKEN_COMMA,
+        TOKEN_SEMICOLON,
+        TOKEN_COLON,
         TOKEN_LP,
         TOKEN_RP,
         TOKEN_OB,
         TOKEN_CB,
+        TOKEN_OSB,
+        TOKEN_CSB,
         TOKEN_DIV,
         TOKEN_MUL,
         TOKEN_EE,
         TOKEN_GT,
-        TOKEN_LT, 
+        TOKEN_LT,
         TOKEN_LTE,
         TOKEN_GTE,
         TOKEN_NE,
         TOKEN_AND,
         TOKEN_OR,
+        TOKEN_TO,
         TOKEN_IF,
         TOKEN_ELF,
         TOKEN_ELSE,
         TOKEN_WHILE,
+        TOKEN_FOR,
         TOKEN_TYPE_INT,
         TOKEN_TYPE_FLOAT,
         TOKEN_TYPE_STRING,
         TOKEN_TYPE_BOOL,
         TOKEN_TYPE_LIST,
+        TOKEN_TYPE_FUNCTION,
     } type;
 
     char *value;
 } Token;
 
-Lexer *initLexer(char *content, Set* keywords);
+Lexer *initLexer(char *content, Set *keywords);
 
 void advanceLexer(Lexer *lexer);
 
@@ -63,6 +69,6 @@ Token *createIdentifier(Lexer *lexer);
 
 Token *initToken(int type, char *value);
 
-char* convertCharToString(char c);
+char *convertCharToString(char c);
 
 List *createTokens(Lexer *lexer);
