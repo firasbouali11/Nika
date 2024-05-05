@@ -54,6 +54,7 @@ typedef struct Token
         TOKEN_TYPE_BOOL,
         TOKEN_TYPE_LIST,
         TOKEN_TYPE_FUNCTION,
+        TOKEN_PRINT_FUNCTION,
     } type;
 
     char *value;

@@ -157,6 +157,30 @@ Value *execute(ASTNode *node, Map *cache, Map *functions)
         return NULL;
     }
 
+    if(node->token->type == TOKEN_PRINT_FUNCTION){
+        char* var_name = (char *) l->data;
+        Value* var = getFromMap(cache, var_name, (strlen(var_name)+1) * sizeof(char));
+        switch(var->type){
+            case TOKEN_FLOAT:
+                printf("%f\n", *(double *) var->data);
+                break;
+            case TOKEN_BOOL:
+                char * resp = (*(double*)var->data) == 1 ? "TRUE" : "FALSE";
+                puts(resp);
+                break;
+            case TOKEN_INT:
+                printf("%d\n", *(int *) var->data);
+                break;
+            case TOKEN_STRING:
+                puts((char *) var->data);
+                break;
+            default:
+                printf("<%p>\n", var->data);
+                break;
+        }
+        return NULL;
+    }
+
     if (node->token->type == TOKEN_ELSE)
         return execute(node->right, cache, functions);
 

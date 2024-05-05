@@ -92,6 +92,8 @@ Token *createIdentifier(Lexer *lexer)
         token->type = TOKEN_WHILE;
     else if ((strcmp(str, "for") == 0))
         token->type = TOKEN_FOR;
+    else if ((strcmp(str, "print") == 0))
+        token->type = TOKEN_PRINT_FUNCTION;
     else
         token->type = TOKEN_VAR;
     token->value = str;

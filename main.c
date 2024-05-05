@@ -116,7 +116,7 @@ int main(int argc, char const *argv[])
     const char *filename = argv[1];
     char *code = readFile(filename);
     Set *keywords = newSet();
-    char *keywords_c = "+-*/()\" =;{}<>,[]";
+    char *keywords_c = "+-*/()\" =;:{}<>,[]";
     for (int i = 0; i < strlen(keywords_c); i++)
         addToSet(keywords, &keywords_c[i], sizeof(char));
     Lexer *lexer = initLexer(code, keywords);
