@@ -20,8 +20,8 @@ void pushStack(Stack *st, void* val, int size){
 
 void* popStack(Stack* st){
     if(stackEmpty(st)){
-        printf("Stack is empty!");
-        exit(1);
+        fprintf(stderr, "Stack is empty");
+        exit(EXIT_FAILURE);
     }
     void* res = headStack(st);
     deleteFromLinkedList(st->list, 0);
@@ -30,9 +30,4 @@ void* popStack(Stack* st){
 
 void* headStack(Stack* st){
     return st->list->head->data;
-}
-
-void destroyStack(Stack* st){
-    destroyLinkedList(st->list);
-    free(st);
 }

@@ -42,7 +42,7 @@ void prependToLinkedList(LinkedList* list, void* data, int size) {
 
 void insertToLinkedList(LinkedList* list, int pos, void* data, int size) {
     if(pos < 0 || pos > list->length){
-        printf("Position out of boundries");
+        puts("Position out of boundries");
         return;
     }
     if(pos == 0) {
@@ -100,25 +100,4 @@ int searchInLinkedList(LinkedList* list, void* t, int size) {
         i++;
     }
     return -1;
-}
-
-// when values are of type int 
-void printLinkedList(LinkedList * list) {
-    Node* node = list->head;
-    while(node != NULL) {
-        printf("%d -> ", *(int*)node->data);
-        node = node->next;
-    }
-    printf("NIL\n");
-}
-
-void destroyLinkedList(LinkedList* list) {
-    Node* node = list->head;
-    while(node != NULL) {
-        Node* temp = node->next;
-        free(node->data);
-        free(node);
-        node = temp;
-    }
-    free(list);
 }

@@ -19,8 +19,8 @@ int queueEmpty(Queue * queue){
 
 void* headQueue(Queue * queue){
     if(queueEmpty(queue)){
-        printf("Queue is empty");
-        exit(1);
+        fprintf(stderr, "Queue is empty\n");
+        exit(EXIT_FAILURE);
     }
     return queue->list->head->data;
 }

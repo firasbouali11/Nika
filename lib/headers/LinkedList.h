@@ -22,7 +22,3 @@ void insertToLinkedList(LinkedList* list, int pos, void* data, int size);
 void deleteFromLinkedList(LinkedList* list, int pos);
 
 int searchInLinkedList(LinkedList* list, void* t, int size);
-
-void printLinkedList(LinkedList * list);
-
-void destroyLinkedList(LinkedList* list);

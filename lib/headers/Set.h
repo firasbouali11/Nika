@@ -13,8 +13,6 @@ typedef struct
     int capacity;
 } Set;
 
-static int hash(char *key, int capacity, int key_size);
-
 Set *newSet();
 
 void addToSet(Set *set, void *element, int elt_size);

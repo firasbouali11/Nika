@@ -42,7 +42,7 @@ Token *getString(Lexer *lexer)
 
 Token *createIdentifier(Lexer *lexer)
 {
-    int n = strlen(lexer->content);
+    unsigned int n = strlen(lexer->content);
     char *str = malloc(sizeof(char));
     str[0] = '\0';
     int point = 0;
@@ -125,7 +125,7 @@ char *createString(char *s, int size)
 
 List *createTokens(Lexer *lexer)
 {
-    int n = strlen(lexer->content);
+    unsigned int n = strlen(lexer->content);
     List *tokens = newList();
     List *tokens_list = newList();
     int lower_level = 0;

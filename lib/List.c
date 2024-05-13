@@ -36,8 +36,8 @@ void* getFromList(List* list, int pos){
 
 void popFromList(List* list){
     if(list->array == NULL || list->size == 0){
-        printf("Can not pop from an empty list");
-        exit(1);
+        fprintf(stderr, "Can not pop from an empty list\n");
+        exit(EXIT_FAILURE);
     }
     free(list->array[list->size-1]);
     list->size--;
@@ -45,8 +45,8 @@ void popFromList(List* list){
 
 void deleteFromList(List* list, int pos){
     if(pos < 0 || pos >= list->size){
-        printf("Index out of bound");
-        exit(1);
+        fprintf(stderr, "Index out of bound\n");
+        exit(EXIT_FAILURE);
     }
     free(list->array[pos]);
     for (int i = pos; i < list->size-1; i++)
@@ -56,24 +56,15 @@ void deleteFromList(List* list, int pos){
     list->size--;
 }
 
-void insertToList(List* list, int pos, void* val, int size){
+void insertToList(List* list, int pos, void* val){
     if(list->size >= list->capacity){
         resize(list);
     }
     for (int i = list->size - 1; i >= pos; i--) {
         list->array[i + 1] = list->array[i];
     }
-    void * new_val = malloc(size);
-    list->array[pos] = new_val;
+    list->array[pos] = val;
     list->size++;
-}
-
-void freeList(List * list){
-    for (int i = 0; i < list->size; i++){
-        free(list->array[i]);
-    }
-    free(list->array);
-    free(list);
 }
 
 static void merge(int **array, int l, int mid, int h) {

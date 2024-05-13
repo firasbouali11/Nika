@@ -80,13 +80,13 @@ Value *execute(ASTNode *node, Map *cache, Map *functions)
     }
     else if (node->token->type == TOKEN_FUNCTION)
     {
-        ASTNode *function_ast = (ASTNode *)getFromMap(functions, node->token->value, strlen(node->token->value) + 1);
+        ASTNode *function_ast = (ASTNode *)getFromMap(functions, node->token->value, (strlen(node->token->value) + 1) * sizeof(char));
         for (int i = 0; i < node->args->size; i++)
         {
             ASTNode *arg = (ASTNode *)getFromList(node->args, i);
             Value *val = execute(arg, cache, functions);
             char *var_name = ((ASTNode *)getFromList(function_ast->args, i))->token->value;
-            addToMap(cache, var_name, val, sizeof(strlen(var_name) + 1));
+            addToMap(cache, var_name, val, (strlen(var_name) + 1) * sizeof(char));
         }
         Value *val = NULL;
         for (int i = 0; i < function_ast->body->size; i++)
@@ -94,6 +94,9 @@ Value *execute(ASTNode *node, Map *cache, Map *functions)
             ASTNode *node = (ASTNode *)getFromList(function_ast->body, i);
             val = execute(node, cache, functions);
         }
+        if (val->type == TOKEN_VAR)
+            return (Value *)getFromMap(cache, val->data, (strlen(val->data) + 1) * sizeof(char));
+
         return val;
     }
 
@@ -157,26 +160,31 @@ Value *execute(ASTNode *node, Map *cache, Map *functions)
         return NULL;
     }
 
-    if(node->token->type == TOKEN_PRINT_FUNCTION){
-        char* var_name = (char *) l->data;
-        Value* var = getFromMap(cache, var_name, (strlen(var_name)+1) * sizeof(char));
-        switch(var->type){
-            case TOKEN_FLOAT:
-                printf("%f\n", *(double *) var->data);
-                break;
-            case TOKEN_BOOL:
-                char * resp = (*(double*)var->data) == 1 ? "TRUE" : "FALSE";
-                puts(resp);
-                break;
-            case TOKEN_INT:
-                printf("%d\n", *(int *) var->data);
-                break;
-            case TOKEN_STRING:
-                puts((char *) var->data);
-                break;
-            default:
-                printf("<%p>\n", var->data);
-                break;
+    if (node->token->type == TOKEN_PRINT_FUNCTION)
+    {
+        char *var_name = (char *)l->data;
+        Value *var = getFromMap(cache, var_name, (strlen(var_name) + 1) * sizeof(char));
+        switch (var->type)
+        {
+        case TOKEN_FLOAT:
+            printf("%f\n", *(double *)var->data);
+            break;
+        case TOKEN_BOOL:
+        {
+            double value = *(double *)var->data;
+            char *resp = (value == 1) ? "TRUE" : "FALSE";
+            puts(resp);
+        }
+        break;
+        case TOKEN_INT:
+            printf("%d\n", *(int *)var->data);
+            break;
+        case TOKEN_STRING:
+            puts((char *)var->data);
+            break;
+        default:
+            printf("<%p>\n", var->data);
+            break;
         }
         return NULL;
     }

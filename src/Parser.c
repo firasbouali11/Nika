@@ -116,11 +116,12 @@ ASTNode *functionDefinition(Parser *parser)
 
 ASTNode *expr(Parser *parser)
 {
-    if(parser->current_token && parser->current_token->type == TOKEN_PRINT_FUNCTION){
-        Token* print_token = parser->current_token; 
+    if (parser->current_token && parser->current_token->type == TOKEN_PRINT_FUNCTION)
+    {
+        Token *print_token = parser->current_token;
         advanceParser(parser);
-        ASTNode* var_to_print = expr(parser); 
-        ASTNode* node = initASTNode(print_token, var_to_print, NULL);
+        ASTNode *var_to_print = expr(parser);
+        ASTNode *node = initASTNode(print_token, var_to_print, NULL);
         return node;
     }
     if (parser->current_token && parser->current_token->type == TOKEN_TYPE_FUNCTION)
@@ -147,7 +148,8 @@ ASTNode *expr(Parser *parser)
     if (parser->current_token && parser->current_token->type == TOKEN_VAR)
     {
         int next_token_type = checkNextToken(parser)->type;
-        if( next_token_type == TOKEN_EQUAL || next_token_type == TOKEN_COLON){
+        if (next_token_type == TOKEN_EQUAL || next_token_type == TOKEN_COLON)
+        {
             Token *var_name = parser->current_token;
             ASTNode *var_name_node = initASTNode(var_name, NULL, NULL);
             advanceParser(parser);
@@ -157,14 +159,14 @@ ASTNode *expr(Parser *parser)
             return initASTNode(eq, var_name_node, expression);
         }
     }
-    if(parser->current_token && parser->current_token->type == TOKEN_PRINT_FUNCTION){
-            puts("ssss");
-            Token* print_token = parser->current_token;
-            advanceParser(parser);
-            ASTNode* var_to_print = expr(parser);
-            ASTNode* node = initASTNode(print_token, var_to_print, NULL);
-            return node;
-        }   
+    if (parser->current_token && parser->current_token->type == TOKEN_PRINT_FUNCTION)
+    {
+        Token *print_token = parser->current_token;
+        advanceParser(parser);
+        ASTNode *var_to_print = expr(parser);
+        ASTNode *node = initASTNode(print_token, var_to_print, NULL);
+        return node;
+    }
     ASTNode *node = compExpr(parser);
     while (
         parser->current_token &&
@@ -283,7 +285,6 @@ ASTNode *factor(Parser *parser)
     else if (current && current->type == TOKEN_OSB)
     {
         advanceParser(parser);
-        List *elements = newList();
         ASTNode *list_node = initASTNode(current, NULL, NULL);
         while (parser->current_token && parser->current_token->type != TOKEN_CSB)
         {

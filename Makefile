@@ -22,7 +22,8 @@ IO_OBJS = $(IO_SRCS:.c=.o)
 OUTPUT = main
 
 # Compilation flags
-# CFLAGS = -Wall -Wextra -pedantic -g
+CFLAGS = -Wall -Wextra -pedantic -g
+# CFLAGS = -O2 -s -DNDEBUG -fomit-frame-pointer -march=native
 
 # Targets
 all: $(OUTPUT)

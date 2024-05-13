@@ -40,7 +40,7 @@ void printCache(Map *cache)
             Value *s = (Value *)p->second;
             if (s->type == TOKEN_STRING)
                 printf("%s -> Value(%d, %s), ", f, s->type, (char *)s->data);
-            else if (s->type == TOKEN_INT || s->type == TOKEN_BOOL)
+            if (s->type == TOKEN_INT || s->type == TOKEN_BOOL)
                 printf("%s -> Value(%d, %d), ", f, s->type, *(int *)s->data);
             else if (s->type == TOKEN_OSB)
             {
@@ -102,7 +102,6 @@ void checkArgs(int argc)
         fprintf(stderr, "Error: no file was specified\n");
         exit(EXIT_FAILURE);
     }
-
     if (argc > 2)
     {
         fprintf(stderr, "Error: too many arguments\n");
@@ -117,29 +116,21 @@ int main(int argc, char const *argv[])
     char *code = readFile(filename);
     Set *keywords = newSet();
     char *keywords_c = "+-*/()\" =;:{}<>,[]";
-    for (int i = 0; i < strlen(keywords_c); i++)
+    for (size_t i = 0; i < strlen(keywords_c); i++)
         addToSet(keywords, &keywords_c[i], sizeof(char));
     Lexer *lexer = initLexer(code, keywords);
     List *l = createTokens(lexer);
-    puts("############### TOKENS ################");
-    printTokens(l);
     Map *cache = newMap();
     Map *functions = newMap();
-    puts("############### PARSER ################");
     for (int i = 0; i < l->size; i++)
     {
         List *tokens = (List *)getFromList(l, i);
         Parser *parser = initParser(tokens);
         ASTNode *res = parse(parser);
-        printParser(res);
         if (res->name && res->body)
             addToMap(functions, res->name, res, (strlen(res->name) + 1) * sizeof(char));
         else
             execute(res, cache, functions);
     }
-    puts("############### CACHE ################");
-    printCache(cache);
-    puts("############### FUNCTIONS ################");
-    printFunctions(functions);
     return 0;
 }

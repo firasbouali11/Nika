@@ -19,6 +19,4 @@ void deleteFromList(List* list, int pos);
 
 void mergeSort(int **arr, int l, int h);
 
-void freeList(List * list);
-
-void insertToList(List* list, int pos, void* val, int size);
+void insertToList(List* list, int pos, void* val);
