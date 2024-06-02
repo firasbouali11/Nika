@@ -14,13 +14,36 @@ Lexer *initLexer(char *content, Set *keywords)
     return lexer;
 }
 
-void advanceLexer(Lexer *lexer)
+Token *initToken(int type, char *value)
+{
+    Token *token = malloc(sizeof(Token));
+    token->type = type;
+    token->value = value;
+    return token;
+}
+
+static void advanceLexer(Lexer *lexer)
 {
     lexer->i++;
     lexer->c = lexer->content[lexer->i];
 }
 
-Token *getString(Lexer *lexer)
+static char *convertCharToString(char c)
+{
+    char *string = malloc(2 * sizeof(char));
+    string[0] = c;
+    string[1] = '\0';
+    return string;
+}
+
+static char *createString(char *s, int size)
+{
+    char *string = malloc((size + 1) * sizeof(char));
+    strcpy(string, s);
+    return string;
+}
+
+static Token *getString(Lexer *lexer)
 {
     advanceLexer(lexer);
     char *str = malloc(sizeof(char));
@@ -40,7 +63,7 @@ Token *getString(Lexer *lexer)
     return token;
 }
 
-Token *createIdentifier(Lexer *lexer)
+static Token *createIdentifier(Lexer *lexer)
 {
     unsigned int n = strlen(lexer->content);
     char *str = malloc(sizeof(char));
@@ -98,29 +121,6 @@ Token *createIdentifier(Lexer *lexer)
         token->type = TOKEN_VAR;
     token->value = str;
     return token;
-}
-
-Token *initToken(int type, char *value)
-{
-    Token *token = malloc(sizeof(Token));
-    token->type = type;
-    token->value = value;
-    return token;
-}
-
-char *convertCharToString(char c)
-{
-    char *string = malloc(2 * sizeof(char));
-    string[0] = c;
-    string[1] = '\0';
-    return string;
-}
-
-char *createString(char *s, int size)
-{
-    char *string = malloc((size + 1) * sizeof(char));
-    strcpy(string, s);
-    return string;
 }
 
 List *createTokens(Lexer *lexer)

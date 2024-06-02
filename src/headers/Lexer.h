@@ -62,14 +62,6 @@ typedef struct Token
 
 Lexer *initLexer(char *content, Set *keywords);
 
-void advanceLexer(Lexer *lexer);
-
-Token *getString(Lexer *lexer);
-
-Token *createIdentifier(Lexer *lexer);
-
 Token *initToken(int type, char *value);
-
-char *convertCharToString(char c);
 
 List *createTokens(Lexer *lexer);

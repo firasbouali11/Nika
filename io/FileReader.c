@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void checkNikaFile(const char *filename)
+static int checkNikaFile(const char *filename)
 {
     int n = strlen(filename);
     char suffix[5];
@@ -11,15 +11,21 @@ static void checkNikaFile(const char *filename)
     {
         suffix[j++] = filename[i];
     }
-    if(strncmp(".nika", suffix, 5 * sizeof(char))){
-        fprintf(stderr, "Error: This is not a Nika file");
-        exit(EXIT_FAILURE);
-    }
+    if (strncmp(".nika", suffix, 5 * sizeof(char)))
+        return 0;
+    return 1;
 }
 
-char *readFile(const char *filename)
+static char *getCodeFromParams(const char *param)
 {
-    checkNikaFile(filename);
+    int size = strlen(param) + 1;
+    char *code = malloc(size * sizeof(char));
+    strcpy(code, param);
+    return code;
+}
+
+static char *getCodeFromFile(const char *filename)
+{
     FILE *file;
     file = fopen(filename, "r");
     if (file == NULL)
@@ -40,4 +46,12 @@ char *readFile(const char *filename)
     }
     fclose(file);
     return code;
+}
+
+char *readFile(const char *filename)
+{
+    int check = checkNikaFile(filename);
+    if (!check)
+        return getCodeFromParams(filename);
+    return getCodeFromFile(filename);
 }

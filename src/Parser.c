@@ -4,7 +4,7 @@
 #include "headers/Lexer.h"
 #include "headers/Parser.h"
 
-ASTNode *initASTNode(Token *token, ASTNode *left, ASTNode *right)
+static ASTNode *initASTNode(Token *token, ASTNode *left, ASTNode *right)
 {
     ASTNode *node = malloc(sizeof(ASTNode));
     node->token = token;
@@ -17,16 +17,7 @@ ASTNode *initASTNode(Token *token, ASTNode *left, ASTNode *right)
     return node;
 }
 
-Parser *initParser(List *tokens)
-{
-    Parser *parser = malloc(sizeof(Parser));
-    parser->current_token = (void *)0;
-    parser->i = -1;
-    parser->tokens = tokens;
-    return parser;
-}
-
-void advanceParser(Parser *parser)
+static void advanceParser(Parser *parser)
 {
     parser->i++;
     if (parser->i < parser->tokens->size)
@@ -35,9 +26,28 @@ void advanceParser(Parser *parser)
     }
 }
 
-Token *checkNextToken(Parser *parser)
+static Token *checkNextToken(Parser *parser)
 {
     return (Token *)getFromList(parser->tokens, parser->i + 1);
+}
+
+static void appendElseToElf(ASTNode *elf_node, ASTNode *else_node)
+{
+    if (!elf_node->right)
+    {
+        elf_node->right = else_node;
+        return;
+    }
+    appendElseToElf(elf_node->right, else_node);
+}
+
+Parser *initParser(List *tokens)
+{
+    Parser *parser = malloc(sizeof(Parser));
+    parser->current_token = (void *)0;
+    parser->i = -1;
+    parser->tokens = tokens;
+    return parser;
 }
 
 ASTNode *assignExpr(Parser *parser)
@@ -62,9 +72,9 @@ ASTNode *assignExpr(Parser *parser)
 }
 
 // TODO: make block return a list of ASTNodes instead of an empty ASTNode
-ASTNode *block(Parser *parser)
+List *block(Parser *parser)
 {
-    ASTNode *placeholder = initASTNode(NULL, NULL, NULL);
+    List *block_list = newList();
     if (parser->current_token && parser->current_token->type == TOKEN_OB)
     {
         advanceParser(parser);
@@ -72,11 +82,11 @@ ASTNode *block(Parser *parser)
         {
             ASTNode *node = expr(parser);
             if (node)
-                addToList(placeholder->body, node, sizeof(ASTNode));
+                addToList(block_list, node, sizeof(ASTNode));
         }
         advanceParser(parser);
     }
-    return placeholder;
+    return block_list;
 }
 
 ASTNode *functionDefinition(Parser *parser)
@@ -108,9 +118,8 @@ ASTNode *functionDefinition(Parser *parser)
         addToList(node->args, arg, sizeof(ASTNode));
     }
     advanceParser(parser);
-    ASTNode *body = block(parser);
-    node->body = body->body;
-    free(body);
+    List *body = block(parser);
+    node->body = body;
     return node;
 }
 
@@ -227,15 +236,6 @@ ASTNode *term(Parser *parser)
     return left;
 }
 
-void appendElseToElf(ASTNode *elf_node, ASTNode *else_node)
-{
-    if (!elf_node->right)
-    {
-        elf_node->right = else_node;
-        return;
-    }
-    appendElseToElf(elf_node->right, else_node);
-}
 ASTNode *factor(Parser *parser)
 {
     Token *current = parser->current_token;
@@ -303,8 +303,10 @@ ASTNode *factor(Parser *parser)
     {
         advanceParser(parser);
         ASTNode *condition_expr = expr(parser);
-        ASTNode *if_expr = block(parser);
-        ASTNode *else_expr = NULL;
+        ASTNode *if_expr = initASTNode(NULL, NULL, NULL);
+        List *if_block = block(parser);
+        if_expr->body = if_block;
+        ASTNode *else_expr = initASTNode(NULL, NULL, NULL);;
         Token *else_token = NULL;
         ASTNode *elf_node = NULL;
         while (parser->current_token && parser->current_token->type == TOKEN_ELF)
@@ -312,7 +314,9 @@ ASTNode *factor(Parser *parser)
             Token *elf_token = parser->current_token;
             advanceParser(parser);
             ASTNode *condition_expr = expr(parser);
-            ASTNode *elf_expr = block(parser);
+            ASTNode *elf_expr = initASTNode(NULL, NULL, NULL);
+            List *elf_block = block(parser);
+            elf_expr->body = elf_block;
             elf_node = initASTNode(elf_token, elf_expr, elf_node);
             elf_node->condition = condition_expr;
         }
@@ -320,7 +324,8 @@ ASTNode *factor(Parser *parser)
         {
             else_token = parser->current_token;
             advanceParser(parser);
-            else_expr = block(parser);
+            List * else_block = block(parser);
+            else_expr->body = else_block ;
         }
         ASTNode *else_node = initASTNode(else_token, NULL, else_expr);
         ASTNode *if_node = initASTNode(current, if_expr, NULL);
@@ -340,8 +345,9 @@ ASTNode *factor(Parser *parser)
     {
         advanceParser(parser);
         ASTNode *loop_condition = expr(parser);
-        ASTNode *looped_statements = block(parser);
-        ASTNode *for_node = initASTNode(current, looped_statements, NULL);
+        List *looped_statements = block(parser);
+        ASTNode *for_node = initASTNode(current, NULL, NULL);
+        for_node->body = looped_statements;
         for_node->condition = loop_condition;
         return for_node;
     }

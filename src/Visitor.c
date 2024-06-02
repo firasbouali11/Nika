@@ -14,19 +14,19 @@ static Value *initValue(void *data, int type)
     return val;
 }
 
-static double getConextForBinaryOp(Map *cache, Value *l)
+static double getConextForBinaryOp(Map *cache, Value *val)
 {
     double context;
-    if (l->type == TOKEN_INT || l->type == TOKEN_BOOL)
-        context = *((int *)l->data);
-    else if (l->type == TOKEN_FLOAT)
-        context = *((double *)l->data);
-    else if (l->type == TOKEN_VAR)
+    if (val->type == TOKEN_INT || val->type == TOKEN_BOOL)
+        context = *((int *)val->data);
+    else if (val->type == TOKEN_FLOAT)
+        context = *((double *)val->data);
+    else if (val->type == TOKEN_VAR)
     {
-        Value *defined_var = (Value *)getFromMap(cache, l->data, (strlen((char *)l->data) + 1) * sizeof(char));
+        Value *defined_var = (Value *)getFromMap(cache, val->data, (strlen((char *)val->data) + 1) * sizeof(char));
         if (defined_var == NULL)
         {
-            fprintf(stderr, "Error: '%s' is undefined\n", (char *)l->data);
+            fprintf(stderr, "Error: '%s' is undefined\n", (char *)val->data);
             exit(EXIT_FAILURE);
         }
         if (defined_var->type == TOKEN_INT || defined_var->type == TOKEN_BOOL)
@@ -133,8 +133,8 @@ Value *execute(ASTNode *node, Map *cache, Map *functions)
                     int key_size = (strlen(var_name) + 1) * sizeof(char);
                     Value *val = initValue(_i, TOKEN_FLOAT);
                     addToMap(cache, var_name, val, key_size);
-                    for (int j = 0; j < node->left->body->size; j++)
-                        execute(getFromList(node->left->body, j), cache, functions);
+                    for (int j = 0; j < node->body->size; j++)
+                        execute(getFromList(node->body, j), cache, functions);
                     deleteFromMap(cache, var_name, key_size);
                     free(_i);
                     free(val);
@@ -151,8 +151,8 @@ Value *execute(ASTNode *node, Map *cache, Map *functions)
                     Value *a = (Value *)getFromList(l, i);
                     int key_size = (strlen(var_name) + 1) * sizeof(char);
                     addToMap(cache, var_name, a, key_size);
-                    for (int j = 0; j < node->left->body->size; j++)
-                        execute(getFromList(node->left->body, j), cache, functions);
+                    for (int j = 0; j < node->body->size; j++)
+                        execute(getFromList(node->body, j), cache, functions);
                     deleteFromMap(cache, var_name, key_size);
                 }
             }
