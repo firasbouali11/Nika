@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "stack.h": "c",
+        "hashmap.h": "c",
+        "list.h": "c",
+        "linkedlist.h": "c",
+        "binarytree.h": "c",
+        "stdlib.h": "c",
+        "compare": "c",
+        "limits": "c",
+        "new": "c",
+        "lexer.h": "c",
+        "parser.h": "c",
+        "boolean.h": "c",
+        "set.h": "c",
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c"
+    }
+}

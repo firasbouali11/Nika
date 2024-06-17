@@ -1,0 +1,26 @@
+body {
+    padding: 0;
+    margin: 0;
+    background-color: rgb(46, 46, 46);
+}
+
+html {
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+}
+
+footer {
+    text-align: start;
+    color: green;
+    margin-top: 20px;
+    margin-left: 20px;
+    font-size: large;
+    font-weight: bold;
+}
+
+#run-code {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0
+}
