@@ -8,23 +8,23 @@
 #include "lib/headers/Map.h"
 #include "io/FileReader.h"
 
-void innerPrintParser(ASTNode *node)
+static void printParserDFS(ASTNode *node)
 {
     if (node == NULL)
         return;
     if (node->token)
         printf("%s ", node->token->value);
-    innerPrintParser(node->condition);
-    innerPrintParser(node->left);
-    innerPrintParser(node->right);
+    printParserDFS(node->condition);
+    printParserDFS(node->left);
+    printParserDFS(node->right);
     for (int i = 0; i < node->body->size; i++)
-        innerPrintParser(node->body->array[i]);
+        printParserDFS(node->body->array[i]);
     for (int i = 0; i < node->args->size; i++)
-        innerPrintParser(node->args->array[i]);
+        printParserDFS(node->args->array[i]);
 }
 void printParser(ASTNode *node)
 {
-    innerPrintParser(node);
+    printParserDFS(node);
     puts("");
 }
 
