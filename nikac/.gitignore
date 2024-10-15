@@ -1,6 +1,4 @@
-*.o
-main
-ape.nika
-test.nika
-test.c
+build/
 .vscode
+
+main.nika

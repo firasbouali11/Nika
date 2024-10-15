@@ -1,12 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "headers/heap.h"
+#include "lib/heap.h"
+#include "lib/list.h"
 
-Heap *createHeap()
+#define INIT_CAPACITY 300
+
+Heap *heap_new()
 {
-    int *arr = malloc(INIT_CAPACITY * sizeof(int));
     Heap *heap = malloc(sizeof(Heap));
-    heap->arr = arr;
+    heap->arr = list_new();
     heap->capacity = INIT_CAPACITY;
     heap->size = 0;
     return heap;
@@ -27,14 +29,14 @@ int right(int i)
     return 2 * i + 2;
 }
 
-int getMin(Heap *heap)
+void* heap_get_min(Heap *heap)
 {
-    return heap->arr[0];
+    return list_get(heap->arr, 0);
 }
 
-static void swap(int *i, int *j)
+static void swap(void **i, void **j)
 {
-    int temp = *i;
+    void* temp = *i;
     *i = *j;
     *j = temp;
 }
@@ -44,40 +46,44 @@ void heapify(Heap *heap, int i)
     int l = left(i);
     int r = right(i);
     int smallest = i;
-    int *arr = heap->arr;
-    if (l < heap->size && arr[l] < arr[smallest])
+    List *list = heap->arr;
+    if (l < heap->size && (*(int *)list_get(list, l)) < (*(int *)list_get(list, smallest)))
         smallest = l;
-    if (r < heap->size && arr[r] < arr[smallest])
+    if (r < heap->size && (*(int *)list_get(list, l)) < (*(int *)list_get(list, smallest)))
         smallest = r;
     if (smallest != i)
     {
-        swap(&arr[i], &arr[smallest]);
+        void * s = list_get(list, i);
+        void * t = list_get(list, smallest);
+        swap(&s, &t);
         heapify(heap, smallest);
     }
 }
 
-void insert(Heap *heap, int elt)
+void heap_insert(Heap *heap, void* elt)
 {
     int i = heap->size;
-    int *arr = heap->arr;
+    List *list = heap->arr;
     heap->size++;
-    arr[i] = elt;
-    while (i != 0 && arr[parent(i)] > arr[i])
+    list->array[i] = elt;
+    while (i != 0 && list_get(list, parent(i)) > list_get(list, i))
     {
-        swap(&arr[parent(i)], &arr[i]);
+        void * s = list_get(list, i);
+        void * t = list_get(list, parent(i));
+        swap(&t, &s);
         i = parent(i);
     }
 }
 
-int pop(Heap *heap)
+void* heap_pop(Heap *heap)
 {
     if(heap->size == 1){
         heap->size--;
-        return heap->arr[0];
+        return list_get(heap->arr, 0);
     }
-    int *arr = heap->arr;
-    int root = arr[0];
-    arr[0] = arr[heap->size - 1];
+    List *list = heap->arr;
+    void* root = list_get(list, 0);
+    list->array[0] = list_get(list, heap->size - 1);
     heap->size--;
     heapify(heap, 0);
     return root;

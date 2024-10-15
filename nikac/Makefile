@@ -1,47 +1,60 @@
 # Compiler
 CC = gcc
 
+# Compiler flags
+CFLAGS = -Wall -Wextra -Iheaders
+
 # Directories
 SRC_DIR = src
 LIB_DIR = lib
-IO_DIR = io
+BUILD_DIR = build
 
 # Source files
-MAIN_SRC = main.c
-LIB_SRCS = LinkedList.c Queue.c Stack.c Map.c List.c Set.c
-SRC_SRCS = Lexer.c Parser.c Visitor.c
-IO_SRCS = FileReader.c
+CORE_SRC = $(SRC_DIR)/core/lexer.c $(SRC_DIR)/core/parser.c $(SRC_DIR)/core/visitor.c
+IO_SRC = $(SRC_DIR)/io/file_reader.c
+UTILS_SRC = $(SRC_DIR)/utils/string_utils.c $(SRC_DIR)/utils/exception_utils.c
+LIB_SRC = $(LIB_DIR)/linkedlist.c $(LIB_DIR)/list.c $(LIB_DIR)/map.c $(LIB_DIR)/queue.c $(LIB_DIR)/set.c $(LIB_DIR)/stack.c $(LIB_DIR)/heap.c
+MAIN_SRC = $(SRC_DIR)/main.c
 
-# Object files
-MAIN_OBJ = $(MAIN_SRC:.c=.o)
-LIB_OBJS = $(LIB_SRCS:.c=.o)
-SRC_OBJS = $(SRC_SRCS:.c=.o)
-IO_OBJS = $(IO_SRCS:.c=.o)
+# Object files (in build directory)
+CORE_OBJ = $(patsubst $(SRC_DIR)/core/%.c,$(BUILD_DIR)/%.o,$(CORE_SRC))
+IO_OBJ = $(patsubst $(SRC_DIR)/io/%.c,$(BUILD_DIR)/%.o,$(IO_SRC))
+UTILS_OBJ = $(patsubst $(SRC_DIR)/utils/%.c,$(BUILD_DIR)/%.o,$(UTILS_SRC))
+LIB_OBJ = $(patsubst $(LIB_DIR)/%.c,$(BUILD_DIR)/%.o,$(LIB_SRC))
+MAIN_OBJ = $(BUILD_DIR)/main.o
 
-# Executable
-OUTPUT = main
+# Output binary
+TARGET = $(BUILD_DIR)/main
 
-# Compilation flags
-CFLAGS = -Wall -Wextra -pedantic -g
-# CFLAGS = -O2 -s -DNDEBUG -fomit-frame-pointer -march=native
+# Default target
+all: $(TARGET)
 
-# Targets
-all: $(OUTPUT)
+# Create build directory if it doesn't exist
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
-$(OUTPUT): $(MAIN_OBJ) $(LIB_OBJS) $(SRC_OBJS) $(IO_OBJS)
+# Linking
+$(TARGET): $(CORE_OBJ) $(IO_OBJ) $(UTILS_OBJ) $(LIB_OBJ) $(MAIN_OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
-$(MAIN_OBJ): %.o: %.c
+# Compiling source files into build directory
+$(BUILD_DIR)/%.o: $(SRC_DIR)/core/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(LIB_OBJS): %.o: $(LIB_DIR)/%.c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/io/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(SRC_OBJS): %.o: $(SRC_DIR)/%.c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/utils/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(IO_OBJS): %.o: $(IO_DIR)/%.c
+$(BUILD_DIR)/%.o: $(LIB_DIR)/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(BUILD_DIR)/main.o: $(MAIN_SRC) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean up
 clean:
-	rm -f $(OUTPUT) $(MAIN_OBJ) $(LIB_OBJS) $(SRC_OBJS) $(IO_OBJS)
+	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean

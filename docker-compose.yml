@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   api:
     build:
@@ -12,25 +10,25 @@ services:
     ports:
       - 8000:8000
     command: fastapi dev --host=0.0.0.0
-    # depends_on:
-    #   - nikac
+    depends_on: 
+      - nikac
 
   ui:
     build:
       context: ./nika-online-editor
       dockerfile: Dockerfile
-    volumes:
-      - ./nika-online-editor:/app
     working_dir: /app
+    volumes:
+      - ./nika-online-editor/src:/app/src
+      - ./nika-online-editor/public:/app/public
+      - ./nika-online-editor/assets:/app/assets
     ports:
       - 3000:3000
     command: npm start
 
-  # nikac:
-  #   build:
-  #     context: ./nikac
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./nikac:/app
-  #   working_dir: /app
-  #   command: ./your_c_binary
+  nikac:
+    image: gcc
+    volumes:
+      - ./nikac:/app
+    working_dir: /app
+    command: make

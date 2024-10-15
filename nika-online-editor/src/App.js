@@ -13,9 +13,13 @@ function App() {
     if (event.key === 'Tab') {
       event.preventDefault();
       const { selectionStart, selectionEnd } = event.target;
+      console.log(selectionStart, selectionEnd)
       setCode(code.substring(0, selectionStart) + "\t" + code.substring(selectionEnd));
       // Set the cursor position after the inserted tab
-      // event.target.selectionStart = selectionStart + 1;
+      setTimeout(() => {
+        event.target.selectionStart = selectionStart + 1;
+        event.target.selectionEnd = selectionStart + 1;
+      }, 0);
     }
   };
 
@@ -28,11 +32,11 @@ function App() {
       method: "post",
       body: code
     }
-    const rawResp = await fetch("http://localhost:8000/execute", reqOptions) //TODO: put the endpoint to execute code
+    const rawResp = await fetch("http://localhost:8000/execute", reqOptions)
     let resp = null
-    if(rawResp.ok){
+    if (rawResp.ok) {
       resp = await rawResp.json()
-      if(resp.returncode === 0)
+      if (resp.returncode === 0)
         setCodeExecution(resp.stdout)
       else
         setCodeExecution(resp.stderr)
@@ -41,11 +45,11 @@ function App() {
       alert("Something went wrong !")
   }
 
-  const textareaStyle = {backgroundColor: "black", fontSize: 25}
-  const outputStyle = {backgroundColor: "black"}
+  const textareaStyle = { backgroundColor: "black", fontSize: 25 }
+  const outputStyle = { backgroundColor: "black" }
 
   return (
-    <Box style={{padding: "0", margin: "0" }}>
+    <Box style={{ padding: "0", margin: "0" }}>
       <h1 style={{ textAlign: "center", color: "green" }}>Nika Online Editor</h1>
       <div id="run-code">
         <Button size="md" variant="soft" color="success" className="black-background" onClick={runCode}>
@@ -77,7 +81,7 @@ function App() {
           </Card>
         </Grid>
       </Grid>
-      <footer>© Created by: Firas Bouali - 2024</footer>
+      <footer>&copy; Created by: Firas Bouali - 2024</footer>
     </Box>
   );
 }
