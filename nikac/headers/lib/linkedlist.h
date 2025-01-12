@@ -21,6 +21,10 @@ void linkedlist_prepend(LinkedList *list, void *data);
 
 void linkedlist_insert(LinkedList *list, int pos, void *data);
 
-void* linkedlist_delete(LinkedList *list, int pos);
+void *linkedlist_delete(LinkedList *list, int pos);
 
 int linkedlist_search(LinkedList *list, void *t, int size);
+
+void linkedlist_free(LinkedList *list);
+
+void linkedlist_reverse(LinkedList *list);

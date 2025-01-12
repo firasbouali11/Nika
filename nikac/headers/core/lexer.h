@@ -2,7 +2,7 @@
 
 #include "stdc.h"
 
-typedef struct Lexer
+typedef struct 
 {
     char c;
     unsigned int i;
@@ -10,7 +10,7 @@ typedef struct Lexer
     Set *keywords;
 } Lexer;
 
-typedef struct Token
+typedef struct 
 {
     enum
     {

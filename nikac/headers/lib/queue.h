@@ -2,17 +2,10 @@
 
 #include "linkedlist.h"
 
-typedef struct
-{
-    LinkedList *list;
-} Queue;
+void queue_push(LinkedList *queue, void *val);
 
-Queue *queue_new();
+int queue_is_empty(LinkedList *queue);
 
-void queue_push(Queue *queue, void *val);
+void *queue_head(LinkedList *queue);
 
-int queue_is_empty(Queue *queue);
-
-void *queue_head(Queue *queue);
-
-void *queue_pop(Queue *queue);
+void *queue_pop(LinkedList *queue);

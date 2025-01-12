@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./nika-api:/app
-      - ./nikac/main:/app/main
+      - ./nikac/build/main:/app/main
     working_dir: /app
     ports:
       - 8000:8000

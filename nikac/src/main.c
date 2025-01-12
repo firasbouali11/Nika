@@ -41,7 +41,7 @@ void print_cache(Map *cache)
         {
             char *f = (char *)elt->first;
             Value *s = (Value *)elt->second;
-            printf("%s -> Value(%d, %p), ", f, s->type, (s->data));
+            printf("%s -> Value(%d, %p), ", f, s->type, s->data);
             elt = elt->next;
         }
     }

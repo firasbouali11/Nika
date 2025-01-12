@@ -1,9 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "lib/heap.h"
 #include "lib/list.h"
 
 #define INIT_CAPACITY 300
+
+// Note: for now it works only with integer elements
 
 Heap *heap_new()
 {

@@ -9,12 +9,14 @@ typedef struct
 
 List *list_new();
 
-void list_add(List *list, void * val);
+void list_add(List *list, void *val);
 
 void *list_get(List *list, int pos);
 
-void* list_pop(List *list);
+void *list_pop(List *list);
 
-void* list_delete(List *list, int pos);
+void *list_delete(List *list, int pos);
 
 void list_insert(List *list, int pos, void *val);
+
+void list_free(List *list);

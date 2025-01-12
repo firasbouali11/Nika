@@ -2,17 +2,10 @@
 
 #include "linkedlist.h"
 
-typedef struct
-{
-    LinkedList *list;
-} Stack;
+int stack_is_empty(LinkedList *st);
 
-Stack *stack_new();
+void stack_push(LinkedList *st, void *val);
 
-int stack_is_empty(Stack *st);
+void *stack_pop(LinkedList *st);
 
-void stack_push(Stack *st, void *val);
-
-void *stack_pop(Stack *st);
-
-void *stack_head(Stack *st);
+void *stack_head(LinkedList *st);

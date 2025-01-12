@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "lib/map.h"
 
 #define INIT_CAPACITY 100
@@ -8,13 +9,15 @@
 
 static int hash(void *key, int capacity)
 {
-    int hash = 0;
+    long long hash = 0;
     char *char_key = (char *)key;
     for (int i = 0; char_key[i] != '\0'; i++)
     {
         hash = (31 * hash + char_key[i]) % capacity;
     }
-    return abs(hash);
+    if (hash < 0)
+        hash += capacity;
+    return (int)hash;
 }
 
 Map *map_new()
@@ -46,7 +49,7 @@ static void resize(Map *map)
     for (int i = 0; i < map->capacity; i++)
     {
         Pair *node = map->array[i];
-        if (node != NULL)
+        if (node)
         {
             int index = hash(node->first, new_capacity);
             new_array[index] = node;
@@ -57,7 +60,7 @@ static void resize(Map *map)
     map->capacity = new_capacity;
 }
 
-void map_add(Map *map, void *key, void *value, int key_size)
+void *map_add(Map *map, void *key, void *value, int key_size)
 {
     if (((double)map->size / map->capacity) >= THRESHOLD)
         resize(map);
@@ -65,25 +68,28 @@ void map_add(Map *map, void *key, void *value, int key_size)
     Pair *existing_node = map->array[index];
     map->size++;
     Pair *node = pair_new(key, value);
-    if(!existing_node){
-        map->array[index] = node; 
-        return;
+    if (!existing_node)
+    {
+        map->array[index] = node;
+        return NULL;
     }
     while (existing_node)
     {
         if (memcmp(existing_node->first, key, key_size) == 0)
         {
-            free(existing_node->second);
+            void *old = existing_node->second;
             existing_node->second = value;
-            return;
+            map->size--;
+            return old;
         }
         if (!existing_node->next)
         {
             existing_node->next = node;
-            return;
+            return NULL;
         }
         existing_node = existing_node->next;
     }
+    return NULL;
 }
 
 void *map_get(Map *map, void *key, int size)
@@ -99,7 +105,7 @@ void *map_get(Map *map, void *key, int size)
     return NULL;
 }
 
-Pair* map_delete(Map *map, void *key, int size)
+Pair *map_delete(Map *map, void *key, int size)
 {
     int index = hash(key, map->capacity);
     Pair *current = (Pair *)map->array[index];
@@ -111,9 +117,11 @@ Pair* map_delete(Map *map, void *key, int size)
     }
     if (current == NULL)
         return NULL;
-    
-    if(prev == NULL) map->array[index] = NULL;
-    else prev->next = current->next;
+
+    if (prev == NULL)
+        map->array[index] = NULL;
+    else
+        prev->next = current->next;
     map->size--;
     return current;
 }

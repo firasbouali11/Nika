@@ -102,7 +102,7 @@ List *program(Parser *parser)
     return program;
 }
 
-ASTNode *handle_function_definition(Parser *parser)
+ASTNode *function_definition_ast(Parser *parser)
 {
     advance_parser(parser);
     if (parser->current_token && parser->current_token->type != TOKEN_VAR)
@@ -133,7 +133,7 @@ ASTNode *handle_function_definition(Parser *parser)
     return node;
 }
 
-ASTNode *handle_print_function(Parser *parser)
+ASTNode *print_function_ast(Parser *parser)
 {
     Token *print_token = parser->current_token;
     advance_parser(parser);
@@ -142,7 +142,7 @@ ASTNode *handle_print_function(Parser *parser)
     return node;
 }
 
-ASTNode *handle_variable(Parser *parser)
+ASTNode *variable_ast(Parser *parser)
 {
     Token *var_name = parser->current_token;
     ASTNode *var_name_node = ast_init(var_name, NULL, NULL);
@@ -156,10 +156,10 @@ ASTNode *handle_variable(Parser *parser)
 ASTNode *expr(Parser *parser)
 {
     if (parser->current_token && parser->current_token->type == TOKEN_PRINT_FUNCTION)
-        return handle_print_function(parser);
+        return print_function_ast(parser);
 
     if (parser->current_token && parser->current_token->type == TOKEN_TYPE_FUNCTION)
-        return handle_function_definition(parser);
+        return function_definition_ast(parser);
 
     if (parser->current_token && parser->current_token->type == TOKEN_SEMICOLON)
     {
@@ -180,7 +180,7 @@ ASTNode *expr(Parser *parser)
     if (parser->current_token && parser->current_token->type == TOKEN_VAR)
     {
         if (check_next_token(parser, TOKEN_EQUAL) || check_next_token(parser, TOKEN_COLON))
-            return handle_variable(parser);
+            return variable_ast(parser);
     }
     return logic_expr(parser);
 }
@@ -247,7 +247,7 @@ ASTNode *term(Parser *parser)
     return left;
 }
 
-ASTNode *handle_function_calls(Parser *parser, Token *current)
+ASTNode *function_call_ast(Parser *parser, Token *current)
 {
     char *function_name = current->value;
     Token *function_token = init_token(TOKEN_FUNCTION, function_name);
@@ -268,7 +268,7 @@ ASTNode *handle_function_calls(Parser *parser, Token *current)
     return function_call_node;
 }
 
-ASTNode *handle_list(Parser *parser)
+ASTNode *list_ast(Parser *parser)
 {
     ASTNode *list_node = ast_init(parser->current_token, NULL, NULL);
     advance_parser(parser);
@@ -287,7 +287,7 @@ ASTNode *handle_list(Parser *parser)
     return list_node;
 }
 
-ASTNode *handle_if_condition(Parser *parser)
+ASTNode *if_condition_ast(Parser *parser)
 {
     // create if node
     ASTNode *if_node = ast_init(parser->current_token, NULL, NULL);
@@ -326,7 +326,7 @@ ASTNode *handle_if_condition(Parser *parser)
     return if_node;
 }
 
-ASTNode *handle_loop(Parser *parser)
+ASTNode *loop_ast(Parser *parser)
 {
     ASTNode *for_node = ast_init(parser->current_token, NULL, NULL);
     advance_parser(parser);
@@ -350,7 +350,7 @@ ASTNode *factor(Parser *parser)
     {
         advance_parser(parser);
         if (parser->current_token && parser->current_token->type == TOKEN_LP)
-            return handle_function_calls(parser, current);
+            return function_call_ast(parser, current);
         node = ast_init(current, NULL, NULL);
     }
     else if (current->type == TOKEN_LP)
@@ -363,11 +363,11 @@ ASTNode *factor(Parser *parser)
             throw_exception("Expected ')' after expression.");
     }
     else if (current->type == TOKEN_OSB)
-        node = handle_list(parser);
+        node = list_ast(parser);
     else if (current->type == TOKEN_IF)
-        node = handle_if_condition(parser);
+        node = if_condition_ast(parser);
     else if ((current->type == TOKEN_FOR || current->type == TOKEN_WHILE))
-        node = handle_loop(parser);
+        node = loop_ast(parser);
     return node;
 }
 

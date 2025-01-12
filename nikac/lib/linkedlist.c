@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "lib/linkedlist.h"
 
 LinkedList *linkedlist_new()
@@ -10,6 +11,16 @@ LinkedList *linkedlist_new()
     list->tail = NULL;
     list->length = 0;
     return list;
+}
+
+void linkedlist_free(LinkedList* list) {
+    Node* curr = list->head;
+    while(curr){
+        Node* next = curr->next;
+        free(curr);
+        curr = next;
+    }
+    free(list);
 }
 
 void linkedlist_append(LinkedList *list, void *data)
@@ -25,6 +36,7 @@ void linkedlist_append(LinkedList *list, void *data)
         return;
     }
     list->tail->next = node;
+    list->tail = node;
 }
 
 void linkedlist_prepend(LinkedList *list, void *data)
@@ -45,8 +57,8 @@ void linkedlist_insert(LinkedList *list, int pos, void *data)
 {
     if (pos < 0 || pos > list->length)
     {
-        puts("Position out of boundries");
-        return;
+        fprintf(stderr, "Position out of boundries");
+        exit(EXIT_FAILURE);
     }
     if (pos == 0)
     {
@@ -108,11 +120,23 @@ int linkedlist_search(LinkedList *list, void *t, int size)
     while (head != NULL)
     {
         if (memcmp(head->data, t, size) == 0)
-        {
             return i;
-        }
         head = head->next;
         i++;
     }
     return -1;
+}
+
+void linkedlist_reverse(LinkedList *list)
+{
+    Node *curr = list->head;
+    Node *next = NULL, *prev = NULL;
+    while (curr != NULL)
+    {
+        next = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = next;
+    }
+    list->head = prev;
 }

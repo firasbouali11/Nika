@@ -53,13 +53,13 @@ static Token *extract_identifier(Lexer *lexer)
     unsigned int n = strlen(lexer->content);
     char *str = malloc(sizeof(char));
     str[0] = '\0';
-    int point = 0;
+    int is_float = 0;
     int only_digit = 1;
     int size = 1;
-    while (!set_contains(lexer->keywords, &(char){lexer->c}, sizeof(char)) && lexer->c != '\0' && lexer->i < n)
+    while (!set_contains(lexer->keywords, &lexer->c, sizeof(char)) && lexer->c != '\0' && lexer->i < n)
     {
         if (lexer->c == '.')
-            point = 1;
+            is_float = 1;
         if (!isdigit(lexer->c))
             only_digit = 0;
         str = realloc(str, (size + 1) * sizeof(char));
@@ -81,7 +81,7 @@ static Token *extract_identifier(Lexer *lexer)
         token_type = TOKEN_TYPE_LIST;
     else if ((strcmp(str, "fn") == 0))
         token_type = TOKEN_TYPE_FUNCTION;
-    else if (point)
+    else if (is_float)
         token_type = TOKEN_FLOAT;
     else if (only_digit)
         token_type = TOKEN_INT;
@@ -216,11 +216,13 @@ List *create_tokens(Lexer *lexer)
             }
         case '!':
             advance_lexer(lexer);
-            if (lexer->c == '='){
+            if (lexer->c == '=')
+            {
                 list_add(tokens, init_token(TOKEN_NE, create_string("!=", 2)));
                 break;
             }
-            else continue;
+            else
+                continue;
         }
         advance_lexer(lexer);
     }

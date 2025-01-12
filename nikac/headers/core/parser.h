@@ -30,7 +30,7 @@ ASTNode *assign_expr(Parser *parser);
 
 List *block(Parser *parser);
 
-ASTNode *handle_function_definition(Parser *parser);
+ASTNode *function_definition_ast(Parser *parser);
 
 ASTNode *comp_expr(Parser *parser);
 

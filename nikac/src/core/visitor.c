@@ -201,9 +201,7 @@ Value *execute(ASTNode *node, Map *cache, Map *functions)
         return r;
     }
     if (node->token->type == TOKEN_COLON)
-    {
         return r;
-    }
 
     // this part contains the binary operators;
     double left_val = getConextForBinaryOp(cache, l);
