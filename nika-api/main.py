@@ -13,8 +13,6 @@ async def execute(request: Request):
     code = binaryCode.decode().replace("\"", '\\"')
     try:
         command = f'{COMPILER_PATH} "{code}"'
-        os.system("ls -la")
-        print(command)
         resp = subprocess.run(command, capture_output=True, shell=True)
         return resp
     except Exception as e:

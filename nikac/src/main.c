@@ -9,7 +9,7 @@
 #include "io/file_reader.h"
 #include "utils/exception_utils.h"
 
-static void print_parser_dfs(ASTNode *node)
+void print_parser_dfs(ASTNode *node)
 {
     if (node == NULL)
         return;
@@ -45,7 +45,7 @@ void print_cache(Map *cache)
             elt = elt->next;
         }
     }
-    puts("NIL -> NIL)");
+    puts(")");
 }
 
 void print_functions(Map *functions)
@@ -98,21 +98,21 @@ int main(int argc, char const *argv[])
     List *tokens = create_tokens(lexer);
     Map *cache = map_new();
     Map *functions = map_new();
-    puts("######### tokens #########");
-    print_tokens(tokens);
+    // puts("######### tokens #########");
+    // print_tokens(tokens);
     Parser *parser = parser_init(tokens);
     List *ast_nodes = parse(parser);
-    puts("######### ASTs #########");
+    // puts("######### ASTs #########");
     for (int i = 0; i < ast_nodes->size; i++)
     {
         ASTNode *node = (ASTNode *)list_get(ast_nodes, i);
-        print_parser(node);
+        // print_parser(node);
         if(node->name && node->body)
             map_add(functions, node->name, node, (strlen(node->name)+1) * sizeof(char));
         else 
             execute(node, cache, functions);
     }
-    puts("######### Cache #########");
-    print_cache(cache);
-    print_functions(functions);
+    // puts("######### Cache #########");
+    // print_cache(cache);
+    // print_functions(functions);
 }

@@ -22,7 +22,7 @@ static void print_tokens(List *tokens)
     for (int i = 0; i < tokens->size; i++)
     {
         Token *token = (Token *)list_get(tokens, i);
-        printf("token(%d, %s)\n", token->type, token->value);
+        printf("list_add(expected_tokens, init_token(%d, \"%s\"));\n", token->type, token->value);
     }
 }
 
@@ -93,8 +93,110 @@ void extract_tokens_for_variable_assignment()
     list_free(tokens);
 }
 
+void extract_if_condition_tokens()
+{
+    char *code = "if (condition == FALSE) {"
+                 " int y = 5;"
+                 "} elf (condition2 > 23) {"
+                 "int z = 3;"
+                 "} else {"
+                 "int xx = 23.5543"
+                 "};";
+    Set *keywords = set_from_string(KEYWORDS);
+    Lexer *lexer = init_lexer(code, keywords);
+    List *tokens = create_tokens(lexer);
+    List *expected_tokens = list_new();
+    list_add(expected_tokens, init_token(29, "if"));
+    list_add(expected_tokens, init_token(12, "("));
+    list_add(expected_tokens, init_token(8, "condition"));
+    list_add(expected_tokens, init_token(20, "=="));
+    list_add(expected_tokens, init_token(3, "FALSE"));
+    list_add(expected_tokens, init_token(13, ")"));
+    list_add(expected_tokens, init_token(14, "{"));
+    list_add(expected_tokens, init_token(34, "int"));
+    list_add(expected_tokens, init_token(8, "y"));
+    list_add(expected_tokens, init_token(4, "="));
+    list_add(expected_tokens, init_token(2, "5"));
+    list_add(expected_tokens, init_token(10, ";"));
+    list_add(expected_tokens, init_token(15, "}"));
+    list_add(expected_tokens, init_token(30, "elf"));
+    list_add(expected_tokens, init_token(12, "("));
+    list_add(expected_tokens, init_token(8, "condition2"));
+    list_add(expected_tokens, init_token(21, ">"));
+    list_add(expected_tokens, init_token(2, "23"));
+    list_add(expected_tokens, init_token(13, ")"));
+    list_add(expected_tokens, init_token(14, "{"));
+    list_add(expected_tokens, init_token(34, "int"));
+    list_add(expected_tokens, init_token(8, "z"));
+    list_add(expected_tokens, init_token(4, "="));
+    list_add(expected_tokens, init_token(2, "3"));
+    list_add(expected_tokens, init_token(10, ";"));
+    list_add(expected_tokens, init_token(15, "}"));
+    list_add(expected_tokens, init_token(31, "else"));
+    list_add(expected_tokens, init_token(14, "{"));
+    list_add(expected_tokens, init_token(34, "int"));
+    list_add(expected_tokens, init_token(8, "xx"));
+    list_add(expected_tokens, init_token(4, "="));
+    list_add(expected_tokens, init_token(1, "23.5543"));
+    list_add(expected_tokens, init_token(15, "}"));
+    list_add(expected_tokens, init_token(10, ";"));
+    list_add(expected_tokens, init_token(41, " "));
+    for (int i = 0; i < expected_tokens->size; i++)
+    {
+        Token *expected_token = (Token *)list_get(expected_tokens, i);
+        Token *res = (Token *)list_get(tokens, i);
+        TEST_ASSERT_EQUAL_TOKEN(expected_token, res);
+        free(res->value);
+        free(res);
+        free(expected_token);
+    }
+    list_free(expected_tokens);
+    list_free(tokens);
+}
+
+void extract_loop_tokens()
+{
+    char *code = "for (i: 1 -> 23 ) {"
+                 "print(i);"
+                 "};";
+    Set *keywords = set_from_string(KEYWORDS);
+    Lexer *lexer = init_lexer(code, keywords);
+    List *tokens = create_tokens(lexer);
+    List *expected_tokens = list_new();
+    list_add(expected_tokens, init_token(33, "for"));
+    list_add(expected_tokens, init_token(12, "("));
+    list_add(expected_tokens, init_token(8, "i"));
+    list_add(expected_tokens, init_token(11, ":"));
+    list_add(expected_tokens, init_token(2, "1"));
+    list_add(expected_tokens, init_token(28, "->"));
+    list_add(expected_tokens, init_token(2, "23"));
+    list_add(expected_tokens, init_token(13, ")"));
+    list_add(expected_tokens, init_token(14, "{"));
+    list_add(expected_tokens, init_token(40, "print"));
+    list_add(expected_tokens, init_token(12, "("));
+    list_add(expected_tokens, init_token(8, "i"));
+    list_add(expected_tokens, init_token(13, ")"));
+    list_add(expected_tokens, init_token(10, ";"));
+    list_add(expected_tokens, init_token(15, "}"));
+    list_add(expected_tokens, init_token(10, ";"));
+    list_add(expected_tokens, init_token(41, " "));
+    for (int i = 0; i < expected_tokens->size; i++)
+    {
+        Token *expected_token = (Token *)list_get(expected_tokens, i);
+        Token *res = (Token *)list_get(tokens, i);
+        TEST_ASSERT_EQUAL_TOKEN(expected_token, res);
+        free(res->value);
+        free(res);
+        free(expected_token);
+    }
+    list_free(expected_tokens);
+    list_free(tokens);
+}
+
 void run_lexer_tests(void)
 {
     RUN_TEST(initilize_lexer);
     RUN_TEST(extract_tokens_for_variable_assignment);
+    RUN_TEST(extract_if_condition_tokens);
+    RUN_TEST(extract_loop_tokens);
 }

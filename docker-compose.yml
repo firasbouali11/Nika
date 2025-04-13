@@ -25,6 +25,8 @@ services:
     ports:
       - 3000:3000
     command: npm start
+    depends_on:
+      - api
 
   nikac:
     image: gcc

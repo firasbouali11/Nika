@@ -6,6 +6,7 @@
 #include "test/linkedlist_spec.h"
 #include "test/file_reader_spec.h"
 #include "test/lexer_spec.h"
+#include "test/parser_spec.h"
 
 void setUp(void) {}
 void tearDown(void) {}
@@ -20,5 +21,6 @@ int main(void){
     run_linkedlist_tests();
     run_file_reader_tests();
     run_lexer_tests();
+    run_parser_tests();
     return UNITY_END();
 }

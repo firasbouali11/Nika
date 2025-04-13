@@ -43,6 +43,7 @@ $(BUILD_DIR):
 $(TARGET): $(CORE_OBJ) $(IO_OBJ) $(UTILS_OBJ) $(LIB_OBJ) $(MAIN_OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
 
+# Compiling and running unit tests
 test: $(TEST_OBJ) $(LIB_OBJ) $(UTILS_OBJ) $(UNITY_OBJ) $(IO_OBJ) $(CORE_OBJ)
 	$(CC) -Iheaders -o $(BUILD_DIR)/test $^ && ./$(BUILD_DIR)/test
 
@@ -72,4 +73,4 @@ $(BUILD_DIR)/%.o: $(TEST_DIR)/%.c | $(BUILD_DIR)
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: all clean
+.PHONY: all clean test
